@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>木模戳印花</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/interaction.css" />
+    <script src="js/style.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="logo">木模戳印花</div>
+      <nav>
+        <a href="index.html">首页</a>
+        <a href="introduction.html">"模印"介绍</a>
+        <a href="production.html">"模印"制作</a>
+        <a href="activity.html">"模印"活动</a>
+        <a href="craft.html">"模印"作品</a>
+        <a href="interaction.html">"模印"交流</a>
+        <a href="contact.html">关于我们</a>
+        <a href="login.html">登录/注册</a>
+        <a href="#" onclick="logout()">注销</a>
+      </nav>
+    </header>
+    <!-- <section class="banner"></section> -->
+
+    <section class="interaction-section">
+      <div class="interaction-wrapper">
+        <h2>互动交流</h2>
+
+        <div class="post-form">
+          <textarea id="newPostContent" placeholder="讲点什么..."></textarea>
+          <button onclick="submitPost()">发布</button>
+        </div>
+
+        <div id="postList" class="post-list"></div>
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <p>服务热线：18767031040</p>
+        <p>地址：新疆维吾尔自治区乌鲁木齐市沙依巴克区农大东路311号</p>
+        <p>技术支持：新疆农业大学</p>
+      </div>
+    </footer>
+
+    <script>
+      let posts = [
+        {
+          user: "小天",
+          content: "大家对木模戳印花最感兴趣的是哪一部分？",
+          time: "2024-05-21 10:00",
+          comments: [
+            { user: "小乔", content: "我最喜欢图案设计那块！" },
+            { user: "小唐", content: "我觉得天然染料很有趣。" },
+          ],
+        },
+        {
+          user: "小雅",
+          content: "有没有人研究过这项工艺的历史背景？欢迎交流！",
+          time: "2024-05-21 10:15",
+          comments: [
+            { user: "晓晨", content: "我读过一篇相关的论文，可以私聊~" },
+          ],
+        },
+        {
+          user: "阿花",
+          content: "我想做一块模印帆布包~",
+          time: "2024-05-21 10:30",
+          comments: [
+            { user: "橘子", content: "这个想法好棒，期待成品！" },
+            { user: "手作控", content: "推荐淘宝找模印布料定制哦" },
+          ],
+        },
+        {
+          user: "老张",
+          content: "模印适合学生社团活动！",
+          time: "2024-05-21 10:35",
+          comments: [],
+        },
+        {
+          user: "悠悠",
+          content: "有没有模印教学视频推荐？",
+          time: "2024-05-21 10:40",
+          comments: [
+            { user: "阿昕", content: "B站上搜索‘木模戳印花’有很多！" },
+          ],
+        },
+        {
+          user: "茉莉",
+          content: "我家小孩很喜欢模印图案",
+          time: "2024-05-21 10:50",
+          comments: [{ user: "温温", content: "可以做亲子手工活动~" }],
+        },
+        {
+          user: "可可",
+          content: "请问哪里能买到木模？",
+          time: "2024-05-21 10:55",
+          comments: [{ user: "老赵", content: "新疆民艺街有一家手工木模店" }],
+        },
+        {
+          user: "清风",
+          content: "我自己刻了几个模子，欢迎交流经验",
+          time: "2024-05-21 11:00",
+          comments: [],
+        },
+        {
+          user: "青青子衿",
+          content: "模印工艺太有治愈感了~适合冥想",
+          time: "2024-05-21 11:05",
+          comments: [{ user: "阿树", content: "+1，敲木模的时候真的很静心！" }],
+        },
+        {
+          user: "木艺斋",
+          content: "我们工作室近期有免费体验课，欢迎报名",
+          time: "2024-05-21 11:10",
+          comments: [{ user: "小鱼", content: "报名了！期待见面！" }],
+        },{
+          user: "小杜",
+          content: "我们公司近期有免费体验课，欢迎报名",
+          time: "2024-05-21 10:00",
+          comments: [{ user: "小鱼", content: "具体有些什么课程？" }],
+        }
+      ];
+
+      const currentUser = localStorage.getItem("currentUser");
+      const pageSize = 5;
+      let currentPage = 1;
+
+      function renderPosts() {
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const visiblePosts = posts.slice(start, end);
+
+        const postList = document.getElementById("postList");
+        postList.innerHTML = "";
+
+        visiblePosts.forEach((post, idxGlobal) => {
+          const idx = start + idxGlobal;
+
+          const postDiv = document.createElement("div");
+          postDiv.className = "post";
+
+          postDiv.innerHTML = `
+        <div class="post-header">
+          <strong>${post.user}</strong> 
+          <span>${post.time}</span>
+        </div>
+        <div class="post-body">
+          <h3>${post.content}</h3>
+        </div>
+        <div class="comment-list">
+          ${post.comments
+            .map((c) => `<p><strong>${c.user}：</strong>${c.content}</p>`)
+            .join("")}
+        </div>
+        <div class="comment-box">
+          ${
+            currentUser
+              ? `
+            <input type="text" placeholder="评论..." onkeydown="if(event.key==='Enter'){addComment(${idx}, this)}">
+          `
+              : `<em style="color:gray;">请登录后评论</em>`
+          }
+        </div>
+      `;
+
+          postList.appendChild(postDiv);
+        });
+
+        renderPagination();
+      }
+
+      function renderPagination() {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = "";
+        const pageCount = Math.ceil(posts.length / pageSize);
+
+        for (let i = 1; i <= pageCount; i++) {
+          const btn = document.createElement("button");
+          btn.textContent = i;
+          btn.className = i === currentPage ? "active" : "";
+          btn.onclick = () => {
+            currentPage = i;
+            renderPosts();
+          };
+          pagination.appendChild(btn);
+        }
+      }
+
+      function addComment(postIndex, input) {
+        const content = input.value.trim();
+        if (!content) return;
+        posts[postIndex].comments.push({ user: currentUser, content });
+        input.value = "";
+        renderPosts();
+      }
+
+      function submitPost() {
+        const content = document.getElementById("newPostContent").value.trim();
+        if (!currentUser) return alert("请先登录后发布");
+        if (!content) return;
+        posts.unshift({
+          user: currentUser,
+          content,
+          time: new Date().toLocaleString(),
+          comments: [],
+        });
+        document.getElementById("newPostContent").value = "";
+        renderPosts();
+      }
+
+      renderPosts();
+    </script>
+  </body>
+</html>
